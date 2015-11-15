@@ -1,7 +1,8 @@
 package ar.pablitar.catchtheball
 
-import com.uqbar.vainilla.GameComponent
 import com.uqbar.vainilla.DeltaState
+import com.uqbar.vainilla.GameComponent
+import com.uqbar.vainilla.events.constants.Key
 
 case class Cooldown(cooldown: Double, action: (() => Unit)) {
   var elapsed = 0.0
@@ -18,14 +19,22 @@ case class Cooldown(cooldown: Double, action: (() => Unit)) {
  * @author pablitar
  */
 object BallSpawner extends GameComponent[CatchTheBallScene] {
-  val cooldown = Cooldown(2, () => spawnBall())
+  var spawning = true
+  
+  val cooldown = Cooldown(0.2, () => spawnBall())
   
   override def update(state: DeltaState) = {
-    cooldown.update(state)
+    if(state.isKeyPressed(Key.SPACE)) {
+      spawning = !spawning
+    }
+    
+    if(spawning) {
+      cooldown.update(state)
+    }
   }
 
   def spawnBall() = {
-    this.getScene.addComponent(new Ball())
+    this.getScene.addComponent(Ball.spawn())
   }
   
 }
